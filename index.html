@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
+  </head>
+  <body>
+  
+  <form method="POST">
+  <div class="form-group">
+    <label for="title">Title</label>
+    <input type="text" class="form-control" id="title" placeholder="title input">
+  </div>
+  <div class="form-group">
+    <label for="content">Content</label>
+    <input type="text" class="form-control" id="content" placeholder="content input">
+  </div>
+  <input type="submit" id="btnSubmit" value="Submit">
+</form>
+
+<div id=showDocs> </div>
+<button class="button" id="test">Click me </button>
+
+
+    <!-- jQuery first, then Tether, then Bootstrap JS. -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha384-3ceskX3iaEnIogmQchP8opvBy3Mi7Ce34nWjpBIwVTHfGYWQS9jwHDVRnpKKHJg7" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.7/js/tether.min.js" integrity="sha384-XTs3FgkjiBgo8qjEjBk0tGmf3wPrWtA6coPfQDfFEY8AnYJwjalXCiosYRBIBZX8" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
+	<script type="text/javascript">
+		$("#btnSubmit").click(function(e){
+			e.preventDefault();
+			console.log("this is just a test")
+			var message = {
+				title: $("#title").val(),
+				content: $("#content").val(),
+				
+			
+			}
+			console.log(message)
+			msg = JSON.stringify(message);
+			console.log(msg)
+			
+			//$.post("http://127.0.0.1:5984/stuff",msg,
+			//function(data){console.log("success"+data)});
+			
+			$.ajax({
+			  type: "POST",
+			  url:"http://127.0.0.1:5984/stuff",
+			  data: msg,
+			  success: function(data){
+			  console.log("success"+data);
+			  showEntries();
+			  
+			  },
+			  contentType: "application/json",
+			  dataType: "json"
+			});
+			
+		
+		});
+		
+		$("#test").click(function(){
+			showEntries();
+		
+		
+		
+		});
+		
+		var showEntries = function(){
+		
+			$.get("http://127.0.0.1:5984/stuff/_all_docs?include_docs=true",function(data){
+			console.log("got"+data);
+			things = JSON.parse(data);
+			console.log(things);
+			row = things["rows"];
+			console.log(row);
+			row.sort(function (a,b){
+				return a["doc"]["title"] - b["doc"]["title"];
+			});
+			output="";
+			for(var i=0;i<row.length;i++){
+				
+				//console.log(cur["docs"])
+				console.log(row[i]["doc"]["title"]);
+				console.log(row[i]["doc"]["content"]);
+				//output = row[i]["doc"]["title"] + row[i]["doc"]["content"]
+				output+='<h1> '+row[i]["doc"]["title"]+' </h1> '+ '<p>'+row[i]["doc"]["content"]+'</p>';
+				output+="<br/>";
+			}
+			console.log(output)
+			
+			$("#showDocs").html(output);
+			});
+		
+		
+		};
+		
+		
+	
+	</script>
+  </body>
+</html>
